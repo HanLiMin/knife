@@ -1,4 +1,4 @@
-package com.moontwon.knife.collect;
+package com.moontwon.knife.util;
 
 /**
  * 一个区间
@@ -12,56 +12,56 @@ public interface Interval {
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 */
-	void addOpen(int leftEnd, int rightEnd);
+	TreeInterval addOpen(int leftEnd, int rightEnd);
 	/**
 	 * 向区间内添加一个闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void addClose(int leftEnd, int rightEnd);
+	TreeInterval addClose(int leftEnd, int rightEnd);
 	/**
 	 * 向区间内添加一个左开右闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void addOpenClose(int leftEnd, int rightEnd);
+	TreeInterval addOpenClose(int leftEnd, int rightEnd);
 	/**
 	 * 向区间内添加一个左闭右开区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void addCloseOpen(int leftEnd, int rightEnd);
+	TreeInterval addCloseOpen(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void removeClose(int leftEnd, int rightEnd);
+	TreeInterval removeClose(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个左开右闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void removeOpenClose(int leftEnd, int rightEnd);
+	TreeInterval removeOpenClose(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个开区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void removeOpen(int leftEnd, int rightEnd);
+	TreeInterval removeOpen(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个左闭右开区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	void removeCloseOpen(int leftEnd, int rightEnd);
+	TreeInterval removeCloseOpen(int leftEnd, int rightEnd);
 	/**
 	 * 将所有区间按顺序组合在一起形成一个数组，获取在这个数组中指定索引{@code index}的值
 	 * @param index 索引值

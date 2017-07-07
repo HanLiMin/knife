@@ -1,12 +1,15 @@
 /**
  * 
  */
-package com.moontwon.knife.collect;
+package com.moontwon.knife.util;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.moontwon.knife.util.Interval;
+import com.moontwon.knife.util.TreeInterval;
 
 /**
  * @author midzoon<br>

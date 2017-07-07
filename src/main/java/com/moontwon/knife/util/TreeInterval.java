@@ -1,4 +1,4 @@
-package com.moontwon.knife.collect;
+package com.moontwon.knife.util;
 
 import java.nio.channels.IllegalSelectorException;
 import java.util.Iterator;
@@ -36,32 +36,36 @@ public class TreeInterval implements Interval {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addOpen(int leftEnd, int rightEnd) {
+	public TreeInterval addOpen(int leftEnd, int rightEnd) {
 		Preconditions.checkArgument(rightEnd-1>=leftEnd+1,"添加一个开区间，右端值至少比左端值大2[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
 		add(new IntervalEntity(leftEnd + 1, rightEnd - 1));
+		return this;
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addClose(int leftEnd, int rightEnd) {
+	public TreeInterval addClose(int leftEnd, int rightEnd) {
 		add(new IntervalEntity(leftEnd, rightEnd));
+		return this;
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addOpenClose(int leftEnd, int rightEnd) {
+	public TreeInterval addOpenClose(int leftEnd, int rightEnd) {
 		Preconditions.checkArgument(rightEnd>=leftEnd+1,"添加一个左开右闭区间，右端值至少比左端值大1[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
 		add(new IntervalEntity(leftEnd+1, rightEnd));
+		return this;
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addCloseOpen(int leftEnd, int rightEnd) {
+	public TreeInterval addCloseOpen(int leftEnd, int rightEnd) {
 		Preconditions.checkArgument(rightEnd>=leftEnd+1,"添加一个左闭右开区间，右端值至少比左端值大1[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
 		add(new IntervalEntity(leftEnd, rightEnd-1));
+		return this;
 	}
 	/**
 	 * {@inheritDoc}
@@ -82,7 +86,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public void removeClose(int leftEnd, int rightEnd) {
+	public TreeInterval removeClose(int leftEnd, int rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	/**
@@ -90,7 +94,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public void removeOpenClose(int leftEnd, int rightEnd) {
+	public TreeInterval removeOpenClose(int leftEnd, int rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	/**
@@ -98,7 +102,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public void removeOpen(int leftEnd, int rightEnd) {
+	public TreeInterval removeOpen(int leftEnd, int rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	/**
@@ -106,12 +110,12 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public void removeCloseOpen(int leftEnd, int rightEnd) {
+	public TreeInterval removeCloseOpen(int leftEnd, int rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	@Override
 	public void clear() {
-		throw new UnsupportedOperationException();
+		entities.clear();
 	}
 	/**
 	 * UnsupportedOperation
@@ -143,8 +147,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Override
 	public int valueOfIndex(int index){
-		Preconditions.checkArgument(index>=length(), "index值过大超出索引范围[length:%s,index=%s]");
-		Preconditions.checkArgument(index<0, "index不能为负数[index=%s]",index);
+		Preconditions.checkArgument(index<length()&&index>=0, "index值过大超出索引范围[length:%s,index=%s]",length(),index);
 		Iterator<IntervalEntity> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			TreeInterval.IntervalEntity intervalEntity =  iterator.next();
