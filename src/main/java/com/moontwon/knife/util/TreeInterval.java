@@ -32,6 +32,15 @@ public class TreeInterval implements Interval {
 	public TreeInterval() {
 		entities = Sets.newTreeSet();
 	}
+    @Override
+    public int leftEnd() {
+        return entities.first().leftEnd;
+    }
+    @Override
+    public int rightEnd() {
+        return entities.last().rightEnd;
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -7,6 +7,17 @@ package com.moontwon.knife.util;
  *         2017年5月25日
  */
 public interface Interval {
+    
+    /**
+     * 获取区间左值
+     * @return 区间左值
+     */
+    int leftEnd();
+    /**
+     * 获取区间右值
+     * @return 区间右值
+     */
+    int rightEnd();
 	/**
 	 * 向区间内添加一个开区间
 	 * @param leftEnd 左端点

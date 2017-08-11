@@ -24,191 +24,299 @@ import java.util.concurrent.locks.ReentrantLock;
  *         2017年7月6日
  */
 public class ArrayCircle<E> implements Circle<E> {
-	private transient final ReentrantLock lock = new ReentrantLock();
+    private transient final ReentrantLock lock = new ReentrantLock();
 
-	private volatile Object[] array;
-	private int capacity;
-	private volatile int size;
+    private volatile Object[] array;
+    private int capacity;
+    private volatile int size;
 
-	/**
-	 * 
-	 * @param initialCapacity
-	 *            容量
-	 */
-	public ArrayCircle(int initialCapacity) {
-		if (initialCapacity < 0) {
-			throw new IllegalArgumentException("initialCapacity参数不能小于0");
-		}
-		array = new Object[initialCapacity];
-		capacity = initialCapacity;
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int capacity() {
-		return capacity;
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int size() {
-		lock.lock();
-		try {
-			return size;
-		} finally {
-			lock.unlock();
-		}
+    /**
+     * 
+     * @param initialCapacity
+     *            容量
+     */
+    public ArrayCircle(int initialCapacity) {
+        if (initialCapacity < 0) {
+            throw new IllegalArgumentException("initialCapacity参数不能小于0");
+        }
+        array = new Object[initialCapacity];
+        capacity = initialCapacity;
+    }
 
-	}
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @throws IllegalArgumentException
-	 *             当索引值是负数时
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public E get(long index) {
-		checkRange(index);
-		return (E) array[(int) (index % capacity)];
-	}
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @throws IllegalArgumentException
-	 *             当索引值是负数时
-	 */
-	@Override
-	public boolean put(int index, E e) {
-		lock.lock();
-		try {
-			checkRange(index);
-			E o = get(index);
-			if (eq(o, e)) {
-				return false;
-			} else {
-				array[index % capacity] = e;
-				++size;
-				return false;
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @throws IllegalArgumentException
-	 *             当索引值是负数时
-	 */
-	@Override
-	public boolean put(long index, E e) {
-		lock.lock();
-		try {
-			checkRange(index);
-			E o = get(index);
-			if (eq(o, e)) {
-				return false;
-			} else {
-				array[(int) (index % capacity)] = e;
-				++size;
-				return false;
-			}
-		} finally {
-			lock.unlock();
-		}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int capacity() {
+        return capacity;
+    }
 
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public E remove(long index) {
-		lock.lock();
-		try {
-			checkRange(index);
-			E e = get(index);
-			if (e == null) {
-				return null;
-			} else {
-				array[(int) (index % capacity)] = null;
-				--size;
-				return e;
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public E remove(int index) {
-		lock.lock();
-		try {
-			checkRange(index);
-			E e = get(index);
-			if (e == null) {
-				return null;
-			} else {
-				array[index % capacity] = null;
-				--size;
-				return e;
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isEmpty() {
-		lock.lock();
-		try {
-			if (size > 0) {
-				return false;
-			}
-			return true;
-		} finally {
-			lock.unlock();
-		}
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void clear() {
-		lock.lock();
-		try {
-			array = new Object[capacity];
-			size = 0;
-		} finally {
-			lock.unlock();
-		}
-	}
-	/**
-	 * 检测给定的索引值是否正确
-	 * 
-	 * @param index
-	 */
-	private void checkRange(long index) {
-		if (index < 0) {
-			throw new IllegalArgumentException("index应该是一个正数");
-		}
-	}
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    @Override
+    public int size() {
+        lock.lock();
+        try {
+            return size;
+        } finally {
+            lock.unlock();
+        }
 
-	/**
-	 * 判断两个对象是否相等
-	 * 
-	 * @param o1
-	 * @param o2
-	 * @return boolean 是否相等
-	 */
-	private static boolean eq(Object o1, Object o2) {
-		return (o1 == null ? o2 == null : o1.equals(o2));
-	}
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public int index(int index) {
+        checkRange(index);
+        return index % capacity;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public int index(long index) {
+        checkRange(index);
+        return (int) (index % capacity);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public int preIndex(int index) {
+        checkRange(index);
+        int idx = index % capacity;
+        if (idx == 0) {
+            return capacity - 1;
+        }
+        return idx - 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public int nextIndex(int index) {
+        checkRange(index);
+        int idx = index % capacity;
+        if (idx == capacity - 1) {
+            return 0;
+        }
+        return idx + 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public int preIndex(long index) {
+        checkRange(index);
+        int idx = (int) (index % capacity);
+        if (idx == 0) {
+            return capacity - 1;
+        }
+        return idx - 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public int nextIndex(long index) {
+        checkRange(index);
+        int idx = (int) (index % capacity);
+        if (idx == capacity - 1) {
+            return 0;
+        }
+        return idx + 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public E get(long index) {
+        checkRange(index);
+        return (E) array[(int) (index % capacity)];
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public boolean put(int index, E e) {
+        lock.lock();
+        try {
+            checkRange(index);
+            E o = get(index);
+            if (eq(o, e)) {
+                return false;
+            } else {
+                array[index % capacity] = e;
+                ++size;
+                return false;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalArgumentException
+     *             当索引值是负数时
+     */
+    @Override
+    public boolean put(long index, E e) {
+        lock.lock();
+        try {
+            checkRange(index);
+            E o = get(index);
+            if (eq(o, e)) {
+                return false;
+            } else {
+                array[(int) (index % capacity)] = e;
+                ++size;
+                return false;
+            }
+        } finally {
+            lock.unlock();
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public E remove(long index) {
+        lock.lock();
+        try {
+            checkRange(index);
+            E e = get(index);
+            if (e == null) {
+                return null;
+            } else {
+                array[(int) (index % capacity)] = null;
+                --size;
+                return e;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public E remove(int index) {
+        lock.lock();
+        try {
+            checkRange(index);
+            E e = get(index);
+            if (e == null) {
+                return null;
+            } else {
+                array[index % capacity] = null;
+                --size;
+                return e;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public E[] toArray() {
+        return (E[]) array;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEmpty() {
+        lock.lock();
+        try {
+            if (size > 0) {
+                return false;
+            }
+            return true;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+        lock.lock();
+        try {
+            array = new Object[capacity];
+            size = 0;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * 检测给定的索引值是否正确
+     * 
+     * @param index
+     */
+    private void checkRange(long index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index应该是一个正数");
+        }
+    }
+
+    /**
+     * 判断两个对象是否相等
+     * 
+     * @param o1
+     * @param o2
+     * @return boolean 是否相等
+     */
+    private static boolean eq(Object o1, Object o2) {
+        return (o1 == null ? o2 == null : o1.equals(o2));
+    }
 
 }
