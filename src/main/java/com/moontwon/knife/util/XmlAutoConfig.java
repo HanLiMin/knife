@@ -125,7 +125,7 @@ public final class XmlAutoConfig {
 			}
 			Node node = document.selectSingleNode("/" + root + "//" + nodeName + "//" + name);
 			if (node == null) {
-				LOGGER.error("字段对应的值不存在[field name = {}]", name);
+				LOGGER.error("字段对应的值不存在[class name = {}, field name = {}]", config.getClass().getSimpleName(), name);
 				return false;
 			}
 			Class<?> type = field.getType();
