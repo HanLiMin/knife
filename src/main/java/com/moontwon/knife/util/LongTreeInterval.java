@@ -8,14 +8,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 /**
- * 长整数区间
- * 线程不安全
+ * 长整数区间 线程不安全
  * 
  * @author midzoon<br>
  *         magicsli@outlook.com<br>
  *         2017年5月24日
  */
-public class TreeInterval implements Interval {
+public class LongTreeInterval implements LongInterval {
 	/**
 	 * 为{@code true}表示区间缓存已经经过修改
 	 */
@@ -23,30 +22,30 @@ public class TreeInterval implements Interval {
 	/**
 	 * 区间所含值的数量
 	 */
-	private int length;
+	private long length;
 	/**
 	 * 区间缓存，各个区间交集为空，多个区间以在坐标系上的位置排序
 	 */
 	private TreeSet<IntervalEntity> entities;
-	
-	public TreeInterval() {
+
+	public LongTreeInterval() {
 		entities = Sets.newTreeSet();
 	}
-    @Override
-    public int leftEnd() {
-        return entities.first().leftEnd;
-    }
-    @Override
-    public int rightEnd() {
-        return entities.last().rightEnd;
-    }
+	@Override
+	public long leftEnd() {
+		return entities.first().leftEnd;
+	}
+	@Override
+	public long rightEnd() {
+		return entities.last().rightEnd;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TreeInterval addOpen(int leftEnd, int rightEnd) {
-		Preconditions.checkArgument(rightEnd-1>=leftEnd+1,"添加一个开区间，右端值至少比左端值大2[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
+	public LongTreeInterval addOpen(long leftEnd, long rightEnd) {
+		Preconditions.checkArgument(rightEnd - 1 >= leftEnd + 1, "添加一个开区间，右端值至少比左端值大2[leftEnd=%s,rightEnd=%s]", leftEnd, rightEnd);
 		add(new IntervalEntity(leftEnd + 1, rightEnd - 1));
 		return this;
 	}
@@ -54,7 +53,7 @@ public class TreeInterval implements Interval {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TreeInterval addClose(int leftEnd, int rightEnd) {
+	public LongTreeInterval addClose(long leftEnd, long rightEnd) {
 		add(new IntervalEntity(leftEnd, rightEnd));
 		return this;
 	}
@@ -62,27 +61,27 @@ public class TreeInterval implements Interval {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TreeInterval addOpenClose(int leftEnd, int rightEnd) {
-		Preconditions.checkArgument(rightEnd>=leftEnd+1,"添加一个左开右闭区间，右端值至少比左端值大1[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
-		add(new IntervalEntity(leftEnd+1, rightEnd));
+	public LongTreeInterval addOpenClose(long leftEnd, long rightEnd) {
+		Preconditions.checkArgument(rightEnd >= leftEnd + 1, "添加一个左开右闭区间，右端值至少比左端值大1[leftEnd=%s,rightEnd=%s]", leftEnd, rightEnd);
+		add(new IntervalEntity(leftEnd + 1, rightEnd));
 		return this;
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TreeInterval addCloseOpen(int leftEnd, int rightEnd) {
-		Preconditions.checkArgument(rightEnd>=leftEnd+1,"添加一个左闭右开区间，右端值至少比左端值大1[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
-		add(new IntervalEntity(leftEnd, rightEnd-1));
+	public LongTreeInterval addCloseOpen(long leftEnd, long rightEnd) {
+		Preconditions.checkArgument(rightEnd >= leftEnd + 1, "添加一个左闭右开区间，右端值至少比左端值大1[leftEnd=%s,rightEnd=%s]", leftEnd, rightEnd);
+		add(new IntervalEntity(leftEnd, rightEnd - 1));
 		return this;
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean contains(int value){
+	public boolean contains(long value) {
 		Iterator<IntervalEntity> iterator = entities.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			IntervalEntity entity = iterator.next();
 			if (entity.contains(value)) {
 				return true;
@@ -95,7 +94,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public TreeInterval removeClose(int leftEnd, int rightEnd) {
+	public LongTreeInterval removeClose(long leftEnd, long rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	/**
@@ -103,7 +102,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public TreeInterval removeOpenClose(int leftEnd, int rightEnd) {
+	public LongTreeInterval removeOpenClose(long leftEnd, long rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	/**
@@ -111,7 +110,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public TreeInterval removeOpen(int leftEnd, int rightEnd) {
+	public LongTreeInterval removeOpen(long leftEnd, long rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	/**
@@ -119,7 +118,7 @@ public class TreeInterval implements Interval {
 	 */
 	@Deprecated
 	@Override
-	public TreeInterval removeCloseOpen(int leftEnd, int rightEnd) {
+	public LongTreeInterval removeCloseOpen(long leftEnd, long rightEnd) {
 		throw new UnsupportedOperationException();
 	}
 	@Override
@@ -138,13 +137,13 @@ public class TreeInterval implements Interval {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int length(){
+	public long length() {
 		if (mod) {
 			int len = 0;
 			Iterator<IntervalEntity> iterator = entities.iterator();
 			while (iterator.hasNext()) {
-				TreeInterval.IntervalEntity intervalEntity =  iterator.next();
-				len +=intervalEntity.length(); 
+				LongTreeInterval.IntervalEntity intervalEntity = iterator.next();
+				len += intervalEntity.length();
 			}
 			length = len;
 			mod = false;
@@ -155,16 +154,16 @@ public class TreeInterval implements Interval {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int valueOfIndex(int index){
-		Preconditions.checkArgument(index<length()&&index>=0, "index值过大超出索引范围[length:%s,index=%s]",length(),index);
+	public long valueOfIndex(long index) {
+		Preconditions.checkArgument(index < length() && index >= 0, "index值过大超出索引范围[length:%s,index=%s]", length(), index);
 		Iterator<IntervalEntity> iterator = entities.iterator();
 		while (iterator.hasNext()) {
-			TreeInterval.IntervalEntity intervalEntity =  iterator.next();
-			int i = intervalEntity.length();
-			if (index<i) {
-				return intervalEntity.leftEnd+index;
+			LongTreeInterval.IntervalEntity intervalEntity = iterator.next();
+			long i = intervalEntity.length();
+			if (index < i) {
+				return intervalEntity.leftEnd + index;
 			}
-			index-=i+1;
+			index -= i;
 		}
 		throw new IllegalSelectorException();
 	}
@@ -172,7 +171,7 @@ public class TreeInterval implements Interval {
 	 * {@inheritDoc}
 	 */
 	private void add(IntervalEntity intervalEntity) {
-		mod=true;
+		mod = true;
 		if (entities.contains(intervalEntity)) {
 			return;
 		}
@@ -180,21 +179,20 @@ public class TreeInterval implements Interval {
 		add0();
 	}
 	/**
-	 * 清理区间缓存，合并有交集的区间
-	 * 递归调用直到缓存中不存在有交集的区间
+	 * 清理区间缓存，合并有交集的区间 递归调用直到缓存中不存在有交集的区间
 	 * 
 	 * void
 	 */
-	private void add0(){
+	private void add0() {
 		IntervalEntity entity = entities.first();
-		for(;;){
+		for (;;) {
 			IntervalEntity next = entities.higher(entity);
-			if (next==null) {
+			if (next == null) {
 				return;
-			}else if (entity.contains(next)) {
+			} else if (entity.contains(next)) {
 				entities.remove(next);
 				continue;
-			}else if (entity.intersected(next)) {
+			} else if (entity.intersected(next)) {
 				entities.remove(entity);
 				entities.remove(next);
 				IntervalEntity unionEntity = entity.union(next);
@@ -204,7 +202,7 @@ public class TreeInterval implements Interval {
 			}
 			entity = next;
 		}
-		
+
 	}
 	@Override
 	public String toString() {
@@ -213,7 +211,7 @@ public class TreeInterval implements Interval {
 		}
 		StringBuilder sb = new StringBuilder();
 		Iterator<IntervalEntity> iterator = entities.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			sb.append(iterator.next());
 			if (iterator.hasNext()) {
 				sb.append("U");
@@ -229,11 +227,11 @@ public class TreeInterval implements Interval {
 	 *         2017年5月24日
 	 */
 	private class IntervalEntity implements Comparable<IntervalEntity> {
-		private int leftEnd;
-		private int rightEnd;
+		private long leftEnd;
+		private long rightEnd;
 
-		public IntervalEntity(int leftEnd, int rightEnd) {
-			Preconditions.checkArgument(rightEnd >= leftEnd,"右端值应大于等于左端值[leftEnd=%s,rightEnd=%s]",leftEnd,rightEnd);
+		public IntervalEntity(long leftEnd, long rightEnd) {
+			Preconditions.checkArgument(rightEnd >= leftEnd, "右端值应大于等于左端值[leftEnd=%s,rightEnd=%s]", leftEnd, rightEnd);
 			this.leftEnd = leftEnd;
 			this.rightEnd = rightEnd;
 		}
@@ -244,7 +242,7 @@ public class TreeInterval implements Interval {
 		 * @param value
 		 * @return boolean
 		 */
-		public boolean contains(int value) {
+		public boolean contains(long value) {
 			return value >= leftEnd && value <= rightEnd;
 		}
 
@@ -273,8 +271,8 @@ public class TreeInterval implements Interval {
 		 * 
 		 * @return int
 		 */
-		public int length() {
-			return rightEnd - leftEnd+1;
+		public long length() {
+			return rightEnd - leftEnd + 1;
 		}
 
 		/**
@@ -284,8 +282,8 @@ public class TreeInterval implements Interval {
 		 * @return IntervalEntity[] 一个区间数组，返回计算出并集
 		 */
 		public IntervalEntity union(IntervalEntity entity) {
-			final int otherLeftEnd = entity.leftEnd;
-			final int otherRightEnd = entity.rightEnd;
+			final long otherLeftEnd = entity.leftEnd;
+			final long otherRightEnd = entity.rightEnd;
 			if (otherLeftEnd < leftEnd) {
 				if (otherRightEnd > rightEnd) {
 					return entity;
@@ -346,8 +344,8 @@ public class TreeInterval implements Interval {
 			return true;
 		}
 
-		private TreeInterval getOuterType() {
-			return TreeInterval.this;
+		private LongTreeInterval getOuterType() {
+			return LongTreeInterval.this;
 		}
 		@Override
 		public String toString() {

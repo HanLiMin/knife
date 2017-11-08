@@ -6,7 +6,7 @@ package com.moontwon.knife.util;
  *         magicsli@outlook.com<br>
  *         2017年5月25日
  */
-public interface Interval {
+public interface IntInterval {
     
     /**
      * 获取区间左值
@@ -23,56 +23,56 @@ public interface Interval {
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 */
-	TreeInterval addOpen(int leftEnd, int rightEnd);
+	IntTreeInterval addOpen(int leftEnd, int rightEnd);
 	/**
 	 * 向区间内添加一个闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval addClose(int leftEnd, int rightEnd);
+	IntTreeInterval addClose(int leftEnd, int rightEnd);
 	/**
 	 * 向区间内添加一个左开右闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval addOpenClose(int leftEnd, int rightEnd);
+	IntTreeInterval addOpenClose(int leftEnd, int rightEnd);
 	/**
 	 * 向区间内添加一个左闭右开区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval addCloseOpen(int leftEnd, int rightEnd);
+	IntTreeInterval addCloseOpen(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval removeClose(int leftEnd, int rightEnd);
+	IntTreeInterval removeClose(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个左开右闭区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval removeOpenClose(int leftEnd, int rightEnd);
+	IntTreeInterval removeOpenClose(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个开区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval removeOpen(int leftEnd, int rightEnd);
+	IntTreeInterval removeOpen(int leftEnd, int rightEnd);
 	/**
 	 * 从区间内移除一个左闭右开区间
 	 * @param leftEnd 左端点
 	 * @param rightEnd 右端点
 	 * void
 	 */
-	TreeInterval removeCloseOpen(int leftEnd, int rightEnd);
+	IntTreeInterval removeCloseOpen(int leftEnd, int rightEnd);
 	/**
 	 * 将所有区间按顺序组合在一起形成一个数组，获取在这个数组中指定索引{@code index}的值
 	 * @param index 索引值

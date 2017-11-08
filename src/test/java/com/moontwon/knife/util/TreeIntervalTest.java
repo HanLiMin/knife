@@ -16,32 +16,32 @@ import org.junit.Test;
  */
 public class TreeIntervalTest {
 
-	private  Interval interval;
+	private  IntInterval intInterval;
 	@Before
 	public  void init(){
-		interval = new TreeInterval();
+		intInterval = new IntTreeInterval();
 	}
 	@Test
 	public void createTest(){
-		assertNotNull(interval);
-		assertEquals("[]", interval.toString());
+		assertNotNull(intInterval);
+		assertEquals("[]", intInterval.toString());
 	}
 	@Test
 	public void addOpenTest(){
-		interval.addOpen(1, 9);
-		assertEquals("[2,8]", interval.toString());
-		interval.addOpen(1, 9);
-		assertEquals("[2,8]", interval.toString());
-		interval.addOpen(20, 90);
-		assertEquals("[2,8]U[21,89]", interval.toString());
-		interval.addOpen(91, 93);
-		assertEquals("[2,8]U[21,89]U[92,92]", interval.toString());
-		interval.addOpen(89, 92);
-		assertEquals("[2,8]U[21,89]U[90,91]U[92,92]", interval.toString());
-		interval.addOpen(80, 93);
-		assertEquals("[2,8]U[21,92]", interval.toString());
-		interval.addOpen(1, 93);
-		assertEquals("[2,92]", interval.toString());
-		assertEquals(91, interval.length());
+		intInterval.addOpen(1, 9);
+		assertEquals("[2,8]", intInterval.toString());
+		intInterval.addOpen(1, 9);
+		assertEquals("[2,8]", intInterval.toString());
+		intInterval.addOpen(20, 90);
+		assertEquals("[2,8]U[21,89]", intInterval.toString());
+		intInterval.addOpen(91, 93);
+		assertEquals("[2,8]U[21,89]U[92,92]", intInterval.toString());
+		intInterval.addOpen(89, 92);
+		assertEquals("[2,8]U[21,89]U[90,91]U[92,92]", intInterval.toString());
+		intInterval.addOpen(80, 93);
+		assertEquals("[2,8]U[21,92]", intInterval.toString());
+		intInterval.addOpen(1, 93);
+		assertEquals("[2,92]", intInterval.toString());
+		assertEquals(91, intInterval.length());
 	}
 }
