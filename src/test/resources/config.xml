@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quotes>
+	<url note="数据库JDBC的url">192.168.1.124:3306/quotes</url>
+	<username>mysql</username>
+	<password>mysql</password>
+	<lip>1</lip>
+	<lport>1</lport>
+	<rip>1</rip>
+	<rport>1</rport>
+	<open>1</open>
+	<close></close>
+	<dddd>12...21</dddd>
+</quotes>

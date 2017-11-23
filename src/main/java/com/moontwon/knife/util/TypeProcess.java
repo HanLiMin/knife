@@ -13,7 +13,7 @@ public interface TypeProcess {
 	/**
 	 * 处理字段赋值
 	 * 
-	 * @param config
+	 * @param configable
 	 *            待配置对象
 	 * @param field
 	 *            待配置字段
@@ -24,5 +24,5 @@ public interface TypeProcess {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException;
+	void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException;
 }

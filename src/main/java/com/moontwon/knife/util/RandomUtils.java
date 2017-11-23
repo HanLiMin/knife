@@ -128,4 +128,165 @@ public class RandomUtils {
 			return left - 1.0 + (right - left + 1.0) * secureRandom.nextDouble();
 		}
 	}
+	/**
+	 * 
+	 * 讲一个数字随机拆解成指定数量的多个数字，且生成的这些数字之和等于指定数字
+	 * 
+	 * 生成数字的方差大
+	 * 
+	 * @param secureRandom
+	 *            随机器
+	 * @param min
+	 *            最小值，应大于等于0
+	 * @param sum
+	 *            要拆分的数字，应大于等于0
+	 * @param num
+	 *            数量 应大于等于0
+	 * @return int[] 包含生成数字的数组
+	 */
+	public static int[] fierceDecompose(SecureRandom secureRandom, int min, int sum, int num) {
+		Preconditions.checkArgument(min > 0 && sum > 0 && num > 0, "min,sun,num都应大于0");
+		int multiple = 1;
+		while (sum * multiple / num < min) {
+			multiple++;
+		}
+		int[] oneplus = gentleDecompose(secureRandom, min, sum * (multiple + 1), num);
+		int[] one = gentleDecompose(secureRandom, min, sum * multiple, num);
+		int[] result = new int[num];
+		while (--num >= 0) {
+			result[num] = oneplus[num] - one[num];
+		}
+		return result;
+	}
+	/**
+	 * 讲一个数字随机拆解成指定数量的多个数字，且生成的这些数字之和等于指定数字
+	 * 
+	 * 生成数字的方差小
+	 * 
+	 * @param secureRandom
+	 *            随机器
+	 * @param min
+	 *            最小值 应大于等于0
+	 * @param sum
+	 *            要拆分的数字 应大于等于0
+	 * @param num
+	 *            数量 应大于等于0
+	 * @return int[] 包含生成数字的数组
+	 */
+	public static int[] gentleDecompose(SecureRandom secureRandom, int min, int sum, int num) {
+		Preconditions.checkArgument(min >= 0 && sum >= 0 && num >= 0, "min,sun,num都应大于等于0");
+		int[] result = new int[num];
+		while (num != 1) {
+			int max = sum / num * 2;
+			int value = RandomUtils.nextInt(secureRandom, 1, max);
+			value = value < min ? min : value;
+			--num;
+			sum -= value;
+			result[num] = value;
+		}
+		result[0] = sum;
+		return result;
+	}
+	/**
+	 * 消去数组的峰值并保持和不变 生成的数字都小于等于最大值，数组后一个数字与前一个数字之差的绝对值小于等于最大值
+	 * 
+	 * @param raw
+	 *            包含数字的数组
+	 * @param max
+	 *            最大值 void
+	 */
+	public static void soften(int[] raw, int max) {
+		Preconditions.checkArgument(max >= 0, "max应大于等于0");
+		final int len = raw.length;
+		Preconditions.checkArgument(MathUtils.sum(raw) / len <= max, "max过大");
+
+		int pool = eliminate(raw, max);
+		while (pool != 0) {
+			for (int i = 0; i < len - 1; i++) {
+				if (i == 0 && pool != 0) {
+					int l = raw[0];
+					if (pool > 0 && !(l == max)) {
+						raw[0] = ++l;
+						--pool;
+					} else if (pool < 0 && !(l == -max)) {
+						raw[0] = --l;
+						++pool;
+					}
+
+				}
+				int l = raw[i];
+				int r = raw[i + 1];
+				int d = r - l;
+				if (Math.abs(d) > max) {
+					raw[i + 1] = d > 0 ? l + max : l - max;
+					pool = d > 0 ? pool - max + d : pool + d + max;
+				} else {
+					if (pool != 0) {
+						if (pool > 0 && !(r == max)) {
+							raw[i + 1] = ++r;
+							--pool;
+						} else if (pool < 0 && !(l == -max)) {
+							raw[i + 1] = --r;
+							++pool;
+						}
+					}
+				}
+			}
+			if (pool == 0) {
+				pool = eliminate(raw, max);
+			}
+		}
+	}
+	/**
+	 * 消去峰值并返回，消去的值的和
+	 * 
+	 * @param raw
+	 *            包含数字的数组
+	 * @param max
+	 *            最大值，应大于等于0
+	 * @return int 消去的值的和
+	 */
+	private static int eliminate(int[] raw, int max) {
+		Preconditions.checkArgument(max >= 0, "max应大于等于0");
+		int pool = 0;
+		// 消峰
+		for (int i = 0; i < raw.length; i++) {
+			int value = raw[i];
+			if (Math.abs(value) > max) {
+				raw[i] = value > 0 ? max : -max;
+				pool += value - raw[i];
+			}
+		}
+		return pool;
+	}
+	/**
+	 * 检查数组内的数字是否符合规则 规则： I)数组内的数字都小于等于最大值 II)数组后一个数字与前一个数字之差的绝对值小于等于最大值
+	 * III)数组内的数字的和为定值
+	 * 
+	 * @param raw
+	 *            包含数字的数组
+	 * @param max
+	 *            最大值
+	 * @param sum
+	 * @return boolean {@code true}符合规则,{@code false}不符合规则
+	 */
+	public static boolean discover(int[] raw, int max, int sum) {
+		Preconditions.checkArgument(max > 0 && sum >= 0, "sum与max都应大于等于0");
+		int s = 0;
+		for (int i = 0; i < raw.length - 1; i++) {
+			int r = raw[i];
+			int l = raw[i + 1];
+			if (i == 0 && Math.abs(r) > max) {
+				return false;
+			}
+			if (Math.abs(r) <= max && Math.abs(l) <= max && Math.abs(l - r) <= max) {
+				s += r;
+			} else {
+				return false;
+			}
+		}
+		s += raw[raw.length - 1];
+		return s == sum;
+	}
+
 }

@@ -17,7 +17,9 @@ import com.moontwon.knife.crypto.RSA;
 /**
  * 根据配置类中标有{@code Conf}注解的字段名字和节点名字，自动读取{@code Document}的对应的节点，自动读取转型设值
  * 支持{@code int}、{@code long}、{@code float}、{@code doule}、{@code boolean}、{@code java.lang.String}、{@code byte[]}(base64解码),{@
- * code com.moontwon.knife.crypto.RSA}
+ * code com.moontwon.knife.crypto.RSA} {@code int[]}
+ * 
+ * 整数数字支持{@code `...`}和{@code `,`}语法,{@code `12...15` = [12,13,14,15] 即指定12到15内的所有整数组成的数组, `12,13,14,15,1`=[12, 13, 14, 15, 1] 即有指定数字组成的数组}
  * 
  * @author midzoon<br>
  *         magicsli@outlook.com<br>
@@ -36,52 +38,67 @@ public final class XmlAutoConfig {
 	static {
 		add(int.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.setInt(config, Integer.parseInt(node));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.setInt(configable, Integer.parseInt(node));
+			}
+		});
+		add(int[].class, new TypeProcess() {
+			@Override
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+
+				if (node.contains(",")) {
+					field.set(configable, ArrayUtils.fromString(node.split(",")));
+				} else if (node.contains("...")) {
+					int[] d = ArrayUtils.fromString(node.split("\\.\\.\\."));
+					field.set(configable, ArrayUtils.fromInt(d[0], d[1]));
+				} else {
+					throw new IllegalArgumentException("无效配置信息 " + node);
+				}
 			}
 		});
 		add(long.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.setLong(config, Long.parseLong(node));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.setLong(configable, Long.parseLong(node));
 			}
 		});
 		add(float.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.setFloat(config, Float.parseFloat(node));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.setFloat(configable, Float.parseFloat(node));
 			}
 		});
 		add(double.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.setDouble(config, Double.parseDouble(node));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.setDouble(configable, Double.parseDouble(node));
 			}
 		});
 		add(boolean.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.setBoolean(config, Boolean.parseBoolean(node));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.setBoolean(configable, Boolean.parseBoolean(node));
 			}
 		});
 		add(byte[].class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.set(config, Base64.decodeBase64(node));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.set(configable, Base64.decodeBase64(node));
 			}
 		});
 		add(String.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.set(config, node);
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.set(configable, node);
 			}
 		});
 		add(RSA.class, new TypeProcess() {
 			@Override
-			public void process(Config config, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
-				field.set(config, new RSA(OperationMode.ECB, Padding.PKCS1PADDING, RSA.pkcs8(node)));
+			public void process(Object configable, Field field, Class<?> type, String node) throws IllegalArgumentException, IllegalAccessException {
+				field.set(configable, new RSA(OperationMode.ECB, Padding.PKCS1PADDING, RSA.pkcs8(node)));
 			}
 		});
+
 	}
 	/**
 	 * dom4j文档
@@ -99,9 +116,9 @@ public final class XmlAutoConfig {
 	 * @param root
 	 *            根节点名字
 	 */
-	public XmlAutoConfig(Document document, String root) {
+	public XmlAutoConfig(Document document) {
 		this.document = document;
-		this.root = root;
+		this.root = document.getRootElement().getName();
 	}
 	/**
 	 * 对指定的对象的对应字段赋值
@@ -110,32 +127,47 @@ public final class XmlAutoConfig {
 	 *            要配置的对象
 	 * @return boolean {@code true}配置成功,{@code false}配置失败
 	 */
-	public boolean config(Config config) {
-		Field[] fields = config.getClass().getDeclaredFields();
-		final String nodeName = config.nodeName();
+	public boolean config(Object configable) {
+		Class<?> clz = configable.getClass();
+		Config typeConfig = clz.getAnnotation(Config.class);
+		if (typeConfig == null) {
+			LOGGER.error("该待配置对象,类上无Config注解");
+			return false;
+		}
+		String currentNodeName = typeConfig.value();
+		if ("".equals(currentNodeName)) {
+			currentNodeName = root;
+		}
+		Field[] fields = clz.getDeclaredFields();
+
 		for (Field field : fields) {
-			Conf conf = field.getAnnotation(Conf.class);
-			if (conf == null) {
+			Config config = field.getAnnotation(Config.class);
+			if (config == null) {
 				continue;
 			}
 			field.setAccessible(true);
-			String name = conf.value();
+			String name = config.value();
 			if ("".equals(name)) {
 				name = field.getName();
 			}
-			Node node = document.selectSingleNode("/" + root + "//" + nodeName + "//" + name);
+			Node node = document.selectSingleNode("//" + currentNodeName + "//" + name);
 			if (node == null) {
 				LOGGER.error("字段对应的值不存在[class name = {}, field name = {}]", config.getClass().getSimpleName(), name);
 				return false;
 			}
-			Class<?> type = field.getType();
 			String string = node.getStringValue();
+			if ("".equals(string)) {
+				LOGGER.warn("{} 字段配置信息为空", name);
+				continue;
+			}
+
+			Class<?> type = field.getType();
 			TypeProcess typeProcess = t.get(type);
 			if (typeProcess != null) {
 				try {
-					typeProcess.process(config, field, type, string);
+					typeProcess.process(configable, field, type, string);
 				} catch (IllegalArgumentException | IllegalAccessException e) {
-					LOGGER.error("字段赋值出现异常[type = {},string = {} ]", type, string);
+					LOGGER.error("字段赋值出现异常[type = {},string = {} {}]", type, string, e);
 					return false;
 
 				}
